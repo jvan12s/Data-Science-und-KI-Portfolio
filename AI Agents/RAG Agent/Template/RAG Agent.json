@@ -1,0 +1,430 @@
+{
+  "name": "RAG Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "showWelcomeScreen": true,
+          "title": "Your Prompt send to your Mail!"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        60
+      ],
+      "id": "aabab43a-3afd-4269-939b-9a881235be20",
+      "name": "When chat message received",
+      "webhookId": "45402187-b2bb-4039-85a7-5eefba447d9d"
+    },
+    {
+      "parameters": {
+        "modelName": "rerank-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        840,
+        220
+      ],
+      "id": "fab30d1f-2bd5-4f5e-99e1-b8afaf04e8ca",
+      "name": "Reranker Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "aoadbcKNjB8ABFuo",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a professional researcher, who can use a vector database to look into the rules of chess. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        296,
+        60
+      ],
+      "id": "9c2787d8-e540-43ae-8e23-962fd9babbd8",
+      "name": "AI RAG Agent"
+    },
+    {
+      "parameters": {
+        "content": "# PDF vectorizen und in die Vektordatenbank laden\n",
+        "height": 500,
+        "width": 1600,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        520
+      ],
+      "id": "fb761792-3705-4908-8e49-29a1900cd079",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        660
+      ],
+      "id": "68f73b7a-64e2-48dc-a9d1-cbbd1c7e5f0a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1z6ochBSleSQWAURK1FV_eW-y_3j1ec5O",
+          "mode": "list",
+          "cachedResultName": "schach.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1z6ochBSleSQWAURK1FV_eW-y_3j1ec5O/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        80,
+        660
+      ],
+      "id": "6c616284-de85-450d-8b83-2b25d6fbaf5e",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "DqtGE129U5dfc21z",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        300,
+        660
+      ],
+      "id": "25ad12e9-8c6f-4e4c-aaad-9a8feb43c6e5",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "// N8N Code Node - Split text by section numbers (1.X pattern)\nconst inputItems = $input.all();\nconst outputItems = [];\n\ninputItems.forEach((item, index) => {\n  // Get the text content from the input item\n  // Adjust the property name based on your actual JSON structure\n  const text = item.json.text || item.json.content || item.json.data || JSON.stringify(item.json);\n  \n  if (!text || typeof text !== 'string') {\n    // If no valid text found, return original item\n    outputItems.push({\n      json: {\n        section: 'error',\n        sectionNumber: '0',\n        title: 'Error',\n        content: 'No valid text content found',\n        index: index,\n        sectionIndex: 0\n      }\n    });\n    return;\n  }\n  \n  // Add the full text as the first item for each input item\n  outputItems.push({\n    json: {\n      section: text,\n      sectionNumber: 'full',\n      title: 'Complete Document',\n      content: text,\n      index: index,\n      sectionIndex: -1\n    }\n  });\n  \n  // Split the text by section patterns (1.X, 2.X, 3.X, etc.)\n  // This regex matches patterns like \"1.\", \"1.1\", \"1.2\", \"2.\", \"2.1\", etc.\n  const sectionRegex = /(?=\\d+\\.(?:\\d+\\s)?)/g;\n  const sections = text.split(sectionRegex).filter(section => section.trim().length > 0);\n  \n  sections.forEach((section, sectionIndex) => {\n    const trimmedSection = section.trim();\n    \n    if (trimmedSection.length === 0) return;\n    \n    // Extract the section number from the beginning of the section\n    const sectionNumberMatch = trimmedSection.match(/^(\\d+(?:\\.\\d+)?)/);\n    const sectionNumber = sectionNumberMatch ? sectionNumberMatch[1] : 'unknown';\n    \n    // Extract the title (text after the section number until the first newline)\n    const titleMatch = trimmedSection.match(/^\\d+(?:\\.\\d+)?\\s*(.+?)(?:\\n|$)/);\n    const title = titleMatch ? titleMatch[1].trim() : 'Untitled';\n    \n    // Get the content (everything after the first line)\n    const contentMatch = trimmedSection.match(/^\\d+(?:\\.\\d+)?\\s*.+?\\n([\\s\\S]*)/);\n    const content = contentMatch ? contentMatch[1].trim() : trimmedSection;\n    \n    outputItems.push({\n      json: {\n        section: trimmedSection,\n        sectionNumber: sectionNumber,\n        title: title,\n        content: content,\n        index: index,\n        sectionIndex: sectionIndex\n      }\n    });\n  });\n});\n\n// If no sections were found, return the original items\nif (outputItems.length === 0) {\n  return inputItems.map((item, index) => ({\n    json: {\n      section: 'complete',\n      sectionNumber: '0',\n      title: 'Complete Document',\n      content: item.json.text || item.json.content || JSON.stringify(item.json),\n      index: index,\n      sectionIndex: 0\n    }\n  }));\n}\n\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        660
+      ],
+      "id": "60b9a185-05ca-4b3b-8e9a-fd684167a7a2",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('Code').item.json.section }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=Title",
+                "value": "={{ $('Code').item.json.title }}"
+              },
+              {
+                "name": "Section",
+                "value": "={{ $('Code').item.json.sectionNumber }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        840
+      ],
+      "id": "036ceddb-56af-4dc0-9794-c0ed0c7806b5",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "chess",
+          "mode": "list",
+          "cachedResultName": "chess"
+        },
+        "embeddingBatchSize": 64,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        740,
+        660
+      ],
+      "id": "df9c34cd-65bf-4ab4-8f05-3a31903ab35c",
+      "name": "Text in Vektordatenbank laden",
+      "credentials": {
+        "pineconeApi": {
+          "id": "04jstqIceoUjkqli",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        740,
+        840
+      ],
+      "id": "94b75edb-1843-4b78-8d75-f75a676affad",
+      "name": "Embeddings Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "aoadbcKNjB8ABFuo",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "f",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "chess",
+          "mode": "list",
+          "cachedResultName": "chess"
+        },
+        "topK": 6,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        640,
+        80
+      ],
+      "id": "be711577-5718-4c0f-ba18-8b2c9573881c",
+      "name": "Daten aus Datenbank lesen",
+      "credentials": {
+        "pineconeApi": {
+          "id": "04jstqIceoUjkqli",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ],
+      "id": "8580ce23-4ba6-41c9-b499-a180880c41cc",
+      "name": "Embeddings Cohere1",
+      "credentials": {
+        "cohereApi": {
+          "id": "aoadbcKNjB8ABFuo",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        320,
+        280
+      ],
+      "id": "34586f8f-27f3-413a-860f-013451f09571",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "39QWigTHMtdj7ChI",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Einsatz des RAG-Agents \n",
+        "height": 520,
+        "width": 1600,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -80
+      ],
+      "id": "8f00e6c0-23c0-4b8a-8364-d16c91d160e0",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Daten aus Datenbank lesen",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Text in Vektordatenbank laden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Text in Vektordatenbank laden",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Text in Vektordatenbank laden",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daten aus Datenbank lesen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Daten aus Datenbank lesen",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a47cab23-2c02-4946-94c9-02c35312ba9e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "87d70ee82e58d850537d695689e61bf736f2136f8fd74ba92aad41715378ff5c"
+  },
+  "id": "hZo1gTCqGT9ey3Bf",
+  "tags": []
+}
