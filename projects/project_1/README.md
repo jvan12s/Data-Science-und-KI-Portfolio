@@ -1,61 +1,84 @@
-Herzstillstand Vorhersage – Klassifikationsprojekt:
+# 🩺 Herzstillstand-Vorhersage – Abschlussbericht (Data Science Projekt)
 
-Projektbeschreibung:
+## 📌 Projektbeschreibung
 
-In diesem Data-Science-Projekt wurde untersucht, ob es möglich ist, anhand medizinischer Merkmalsdaten vorherzusagen, ob Patient:innen in der Zukunft einen Herzstillstand (Cardiac Arrest) erleiden werden. Die Zielvariable im Datensatz gibt an, ob ein Patient betroffen ist (1) oder nicht (0).
-Ziel war es, verschiedene Machine-Learning-Algorithmen zu vergleichen und praktische Empfehlungen auszusprechen, wie zuverlässig und nachvollziehbar eine solche Vorhersage für Mediziner:innen eingesetzt werden kann.
+In diesem Data-Science-Projekt wurde untersucht, ob es durch maschinelles Lernen möglich ist, **Herzstillstände (Cardiac Arrest)** bei Patient:innen zuverlässig vorherzusagen.  
+Die zugrunde liegenden medizinischen Daten enthalten verschiedene Messgrößen und Merkmale. Die **Zielvariable** gibt an, ob ein Patient oder eine Patientin in der Zukunft von einem Herzstillstand betroffen war (`1`) oder nicht (`0`).
 
-Inhalte des Projekts:
+### 🎯 Zielsetzung
 
-- Datenaufbereitung: Reinigung, Transformation und Analyse medizinischer Datensätze.
+- Entwicklung und Vergleich zweier Klassifikationsmodelle.
+- Analyse der **Praxistauglichkeit und Interpretierbarkeit** dieser Modelle in medizinischem Kontext.
+- Formulierung einer Empfehlung für Mediziner:innen zur **anwendbaren Risikoeinschätzung** basierend auf ML-Techniken.
 
-- Feature-Auswahl: Korrelationen und Zusammenhänge der Merkmale mit der Zielvariable analysieren.
+---
 
-- Modelltraining: Zwei Modelle wurden verglichen:
-Logistische Regression
-Random Forest
+## 🧾 Projektinhalt
 
-Bewertung: Beide Modelle wurden bezüglich Präzision und Praxistauglichkeit betrachtet.
+### ✅ Datenaufbereitung
 
-Vorgehensweise
-1. Datenanalyse & Featurereinigung
-Prüfung auf fehlende Werte, fehlerhafte Einträge und Ausreißer.
-Features auf ihre Relevanz bezüglich der Zielvariable geprüft (Korrelationen).
+- **Reinigung der Daten**: Behandlung fehlender Werte, fehlerhafter Einträge und Ausreißer.
+- **Transformation**: Einheitliche Skalierung und Typisierung der Variablen.
+- **Explorative Datenanalyse (EDA)**: Statistik, Histogramme, Korrelationen, Zielverteilung.
 
-2. Modellierung
+### 🧠 Feature Engineering
 
-Logistische Regression:
-Transparente, gut interpretierbare Methode. Orientiert sich an Korrelationen und erlaubt Rückschlüsse auf den Einfluss einzelner Merkmale.
+- Untersuchung von Zusammenhängen der Merkmale zur Zielvariable.
+- Ausschluss unbrauchbarer und irrelevanter Variablen.
+- Visualisierung der wichtigsten Korrelationen.
 
-Random Forest:
-Komplexerer Ensemble-Algorithmus, der sehr hohe Genauigkeit (knapp 99 %) erreicht, jedoch wenig Einblick in die Entscheidungsfindung ermöglicht.
+---
 
-3. Bewertung der Modelle
-<table>
-<tr>
-  <th>Modell</th>
-  <th>Präzision (Accuracy)</th>
-  <th>Interpretierbarkeit</th>
-  <th>Empfehlung</th>
-</tr>
-<tr>
-  <td>Logistische Regression</td>
-  <td>ca. 80 %</td>
-  <td>Sehr gut</td>
-  <td>Praktisch vorteilhaft für medizinische Einsätze</td>
-</tr>
-<tr>
-  <td>Random Forest</td>
-  <td>ca. 99 %</td>
-  <td>Gering (Black Box)</td>
-  <td>Maximale Leistung, aber schwer nachvollziehbar</td>
-</tr>
-</table>
-  
-Random Forest erzielt eine fast perfekte Präzision, ist aber weniger gut erklärbar.
+## 🤖 Modellierung
 
-Die logistische Regression hat eine etwas niedrigere, aber immer noch gute Genauigkeit. Sie ist jedoch besser verständlich, da ihre Gewichtungen direkt den Einfluss der Merkmale auf das Risiko erklären.
+Zwei verschiedene Klassifikationsalgorithmen wurden getestet und bewertet:
 
-Fazit
-Für medizinische Entscheidungen, in denen Transparenz und Vertrauenswürdigkeit besonders wichtig sind, empfiehlt sich meist die Verwendung der logistischen Regression. Kommt es ausschließlich auf höchste Trefferquoten bei der Risikoeinschätzung an, kann der Random Forest ebenfalls eine sinnvolle Wahl sein.
+### 1. Logistische Regression
 
+- **Beschreibung**: Einfache, erklärbare Methode für binäre Klassifikation.
+- **Vorteile**:
+  - Gut interpretierbar (Merkmalsgewichtungen)
+  - Transparente Entscheidungsregeln
+- **Nachteile**:
+  - Begrenzte Modellkomplexität
+- **Erzielte Genauigkeit**: **ca. 80 %**
+
+### 2. Random Forest
+
+- **Beschreibung**: Komplexes Ensemble-Modell (viele Entscheidungsbäume).
+- **Vorteile**:
+  - Sehr hohe Genauigkeit
+  - Robust gegenüber Ausreißern und Korrelationen
+- **Nachteile**:
+  - Kaum interpretierbar („Black Box“)
+- **Erzielte Genauigkeit**: **ca. 99 %**
+
+---
+
+## 🧪 Modellvergleich
+
+| Modell               | Präzision   | Interpretierbarkeit     | Empfehlung                                           |
+|----------------------|-------------|--------------------------|------------------------------------------------------|
+| Logistische Regression | ca. 80 %  | Sehr gut                 | Ideal für medizinische Anwendungen mit Fokus auf Nachvollziehbarkeit |
+| Random Forest          | ca. 99 %  | Gering („Black Box“)     | Maximale Erkennungsleistung bei reduzierter Transparenz |
+
+📝 **Interpretation:**
+
+- Die Logistische Regression erlaubt **direkte Rückschlüsse auf Einflussfaktoren**.
+- Der Random Forest erzielt extrem hohe Werte, eignet sich jedoch weniger für **erklärbare medizinische Entscheidungen**.
+
+---
+
+## 🧠 Fazit & Empfehlung
+
+Für Anwendungen in der Medizin, wo **Transparenz, Erklärbarkeit und Vertrauenswürdigkeit** entscheidend sind, **empfiehlt sich die Logistische Regression**.
+
+Wenn jedoch die **höchste Modellperformance** (Accuracy) im Vordergrund steht – etwa bei datengetriebener Risikoanalyse – kann der **Random Forest** ebenso sinnvoll sein.
+
+---
+
+## 🔄 Weiterentwicklung
+
+- Kombination beider Modelle: Logistische Regression zur Begründung, Random Forest zur Validierung.
+- Einsatz erklärbarer KI-Methoden wie **SHAP** für Random Forest Interpretationen.
+- Erweiterung des Datensatzes mit **Langzeitverläufen** oder **klinischen Zusatzdaten**.
