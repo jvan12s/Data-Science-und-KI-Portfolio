@@ -3,7 +3,7 @@
 ## 📌 Projektbeschreibung
 
 In diesem Data-Science-Projekt wurde untersucht, ob es durch maschinelles Lernen möglich ist, **Herzstillstände (Cardiac Arrest)** bei Patient:innen zuverlässig vorherzusagen.  
-Die zugrunde liegenden medizinischen Daten enthalten verschiedene Messgrößen und Merkmale. Die **Zielvariable** gibt an, ob ein Patient oder eine Patientin in der Zukunft von einem Herzstillstand betroffen war (`1`) oder nicht (`0`).
+Die zugrunde liegenden medizinischen Daten enthalten verschiedene Messgrößen und Merkmale. Die **Zielvariable** gibt an, ob ein Patient oder eine Patientin in der Zukunft von einem Herzstillstand betroffen sein wird (`1`) oder nicht (`0`).
 
 ### 🎯 Zielsetzung
 
