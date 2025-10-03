@@ -37,13 +37,13 @@ def get_llm():
     return watsonx_llm
 
 
-## Document loader
+## Document loader initalisieren
 def document_loader(file):
     loader = PyPDFLoader(file.name)
     loaded_document = loader.load()
     return loaded_document
 
-## Text splitter
+## Text splitter erzeugen
 def text_splitter(data):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
@@ -52,13 +52,13 @@ def text_splitter(data):
     chunks = text_splitter.split_documents(data)
     return chunks
 
-## Vector db
+## Vector db aufsetzen und befüllen
 def vector_database(chunks):
     embedding_model = watsonx_embedding()
     vectordb = Chroma.from_documents(chunks, embedding_model)
     return vectordb
 
-## Embedding model
+## Embedding model Config
 def watsonx_embedding():
     embed_params = {
     GenParams.MIN_NEW_TOKENS: 130, # this controls the minimum number of tokens in the generated output
@@ -67,8 +67,6 @@ def watsonx_embedding():
     }
     credentials = {
     "url": "https://us-south.ml.cloud.ibm.com"
-    # "api_key": "your api key here"
-    # uncomment above when running locally
     }
 
     project_id = "skills-network"
@@ -82,7 +80,7 @@ def watsonx_embedding():
     
     return watsonx_embedding
 
-## Retriever
+## Retriever erzeugen
 def retriever(file):
     splits = document_loader(file)
     chunks = text_splitter(splits)
@@ -90,7 +88,7 @@ def retriever(file):
     retriever = vectordb.as_retriever()
     return retriever
 
-## QA Chain
+## QA Chain erstellen
 def retriever_qa(file, query):
     llm = get_llm()
     retriever_obj = retriever(file)
@@ -101,11 +99,11 @@ def retriever_qa(file, query):
     response = qa.invoke(query)
     return response['result']
 
-# Create Gradio interface
+# Erstellung des Gradio interface
 rag_application = gr.Interface(
     fn= retriever_qa,
     inputs=[
-        gr.File(label="Upload PDF File", file_count="single", file_types=['.pdf'], type="filepath"),  # Drag and drop file upload
+        gr.File(label="Hier PDF hochladen", file_count="single", file_types=['.pdf'], type="filepath"),  # Drag and drop Upload möglich
         gr.Textbox(label="Input Frage", lines=2, placeholder="Type your question here...")
     ],
     outputs=gr.Textbox(label= "Antwort"),
@@ -113,5 +111,5 @@ rag_application = gr.Interface(
     description="Upload a PDF document and ask any question. The chatbot will try to answer using the provided document."
 )
 
-# Launch the app
+# Starten der App per Launch-Befehl
 rag_application.launch(server_name="127.0.0.1", server_port= 7870)
