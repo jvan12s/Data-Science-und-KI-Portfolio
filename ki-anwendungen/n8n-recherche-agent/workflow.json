@@ -1,0 +1,308 @@
+{
+  "name": "telegram recherche agent",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# Research Agent in Notion",
+        "height": 600,
+        "width": 1400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        192,
+        48
+      ],
+      "id": "d688c2d3-c8c7-4ed0-8a19-e4566308f019",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        160
+      ],
+      "id": "7365380f-6a3e-4132-9c8f-49ce5b9d3fc6",
+      "name": "Thema in Telegram nennen"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert researcher! You shall research the topic from the given input and use your tools like the perplexity tool to search for the best result in a good readable format. Every prompt has to be explained very precisely. \n\nThe output-item should be formatted, so that the output can be written directly into the notion page and should only have a maximal number of 2000 characters NOT MORE."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        464,
+        160
+      ],
+      "id": "be3a740a-7877-424f-a411-d1dc5e82a38c",
+      "name": "AI Agent",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        464,
+        400
+      ],
+      "id": "78cd065a-bab8-4bf3-a9e8-d8f6833c38da",
+      "name": "Groq Chat Model"
+    },
+    {
+      "parameters": {
+        "model": "sonar-pro",
+        "messages": {
+          "message": [
+            {
+              "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message0_Text', ``, 'string') }}"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexityTool",
+      "typeVersion": 1,
+      "position": [
+        592,
+        400
+      ],
+      "id": "d9cdc62d-0ee0-43f5-98c6-fb3a030b591f",
+      "name": "Research Tool"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"title\": \"Beispielüberschrift\",\n  \"content\": \"Beispielinhalt\"\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        400
+      ],
+      "id": "2bb724a0-2ff4-4a05-8301-4a430293ca4d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        512
+      ],
+      "id": "fb475efb-31cf-4834-9a89-cee41ae08c0b",
+      "name": "Groq Chat Model1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Thema in Telegram nennen').item.json.message.chat.id }}",
+        "text": "=Deine Recherche ist abgeschlossen!!\nDas Thema \"{{ $('Thema in Telegram nennen').item.json.message.text }}\" wurde erfolgreich auf einer neuen Unterseite auf deiner Notion-Seite \"AI Recherche Agent\" unter dem Link  {{ $('Unterseite erstellen').item.json.url }} erstellt.\nBis zum nächsten Mal! \nDein Recherche Bot",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        160
+      ],
+      "id": "deb866f1-a0ad-49fa-878a-3d8018448ad5",
+      "name": "Bestätigungsnachricht versenden"
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "https://www.notion.so/DEINE-NOTION-SEITE",
+          "mode": "url"
+        },
+        "title": "={{ $json.title }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        160
+      ],
+      "id": "81abc743-1b27-4b94-be1a-9f58022d37be",
+      "name": "Unterseite erstellen"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Eingabetext holen (z.B. vom vorherigen Node im Feld \"text\")\nconst input = $input.first().json.output.content;\n\n// Text nach Zeilen splitten\nconst lines = input.split('\\n');\n\n// Ergebnis-Array für Notion-Blöcke\nlet blocks = [];\n\nfor (let l of lines) {\n  // Heading 2: Zeile beginnt mit \"## \" (ohne weitere # davor)\n  if (/^## (?!#)/.test(l)) {\n    blocks.push({\n      object: \"block\",\n      type: \"heading_2\",\n      heading_2: {\n        rich_text: [\n          {\n            type: \"text\",\n            text: { content: l.replace(/^## /, \"\") }\n          }\n        ]\n      }\n    });\n  } \n  // Normale Paragraphen (nicht-leere Zeile, kein Heading)\n  else if (l.trim().length > 0) {\n    blocks.push({\n      object: \"block\",\n      type: \"paragraph\",\n      paragraph: {\n        rich_text: [\n          {\n            type: \"text\",\n            text: { content: l }\n          }\n        ]\n      }\n    });\n  }\n}\n\nreturn [{ json: {title: $input.first().json.output.title, notion_blocks: blocks } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        160
+      ],
+      "id": "aa7c52b5-1a9f-425d-8c76-984c26450387",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "={{ $('Code').item.json.notion_blocks }}",
+                    "annotationUi": {}
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        160
+      ],
+      "id": "7969ca47-fc5e-4290-80cb-cf71549e1914",
+      "name": "Formatierte Blöcke einfügen",
+      "alwaysOutputData": false
+    }
+  ],
+  "connections": {
+    "Thema in Telegram nennen": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unterseite erstellen": {
+      "main": [
+        [
+          {
+            "node": "Formatierte Blöcke einfügen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Unterseite erstellen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatierte Blöcke einfügen": {
+      "main": [
+        [
+          {
+            "node": "Bestätigungsnachricht versenden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}
