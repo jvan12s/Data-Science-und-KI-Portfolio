@@ -17,7 +17,7 @@ Beruflich arbeite ich an Datenselektionen und Kampagnenmanagement im CRM-Umfeld 
 | [**Recherche-Agent (Telegram → Notion)**](ki-anwendungen/n8n-recherche-agent) | Thema per Telegram schicken, der Agent recherchiert mit Perplexity und legt eine strukturierte Notion-Seite an | n8n, Groq (Qwen3-32B), Perplexity, Notion API, Telegram |
 | [**RAG-Agent mit Vektordatenbank**](ki-anwendungen/n8n-rag-agent) | Chat-Agent beantwortet Fragen auf Basis eines PDF-Dokuments, inkl. Chunking nach Abschnitten und Reranking | n8n, Pinecone, Cohere Embeddings & Reranker, Groq |
 | [**News-Agent**](ki-anwendungen/n8n-news-agent) | Erstellt jeden Morgen um 7 Uhr eine HTML-Nachrichtenübersicht (DE/International) und verschickt sie per E-Mail | n8n, Groq (Qwen3-32B), Perplexity, Gmail |
-| [**RAG-PDF-Assistent in Python**](ki-anwendungen/rag-pdf-assistent-python) | Frage-Antwort-App für hochgeladene PDFs mit Gradio-Oberfläche (Kursprojekt IBM) | Python, LangChain, Chroma, IBM watsonx, Gradio |
+| [**RAG-PDF-Assistent in Python**](ki-anwendungen/rag-pdf-assistent-python) | Frage-Antwort-App für hochgeladene PDFs mit Gradio-Oberfläche (Projekt aus dem IBM Data Science Professional Certificate) | Python, LangChain, Chroma, IBM watsonx, Gradio |
 
 ### 📊 Data Science & Machine Learning
 
@@ -43,7 +43,7 @@ Beruflich arbeite ich an Datenselektionen und Kampagnenmanagement im CRM-Umfeld 
 I'm Jan, a business informatics graduate working as an Associate Consultant in Data Analytics (CRM campaign management, SAS Viya, SQL) based in Bonn, Germany. This repository collects side projects in **machine learning**, **NLP** and **AI agents/automation**:
 
 - **AI agents (n8n):** a Telegram-to-Notion research agent, a RAG chat agent backed by Pinecone with Cohere reranking, and a daily news briefing agent.
-- **RAG PDF assistant (Python):** LangChain + IBM watsonx + Gradio (IBM course project).
+- **RAG PDF assistant (Python):** LangChain + IBM watsonx + Gradio (project from the IBM Data Science Professional Certificate).
 - **Heart disease classification:** logistic regression vs. random forest, including detecting and fixing data leakage caused by duplicate rows.
 - **IMDb sentiment analysis:** Keras neural network vs. logistic regression on TF-IDF features.
 
