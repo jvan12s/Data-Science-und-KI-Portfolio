@@ -2,7 +2,7 @@
 
 Eine kleine Web-App: PDF hochladen, Frage stellen, Antwort erhalten, die sich auf den Inhalt des Dokuments stützt. Umgesetzt mit **Retrieval-Augmented Generation (RAG)**: Das Sprachmodell antwortet nicht aus seinem allgemeinen Wissen, sondern auf Basis der passenden Textstellen aus dem PDF. Das reduziert Halluzinationen.
 
-> **Hinweis:** Projekt aus dem **IBM Data Science Professional Certificate** (IBM Skills Network). Der Code ist auf die Lab-Umgebung des Kurses ausgelegt (`project_id = "skills-network"`). Für den lokalen Betrieb braucht es ein eigenes IBM-watsonx-Projekt mit API-Key.
+> **Hinweis:** Projekt aus dem **IBM RAG and Agentic AI Professional Certificate** (IBM Skills Network). Der Code ist auf die Lab-Umgebung des Kurses ausgelegt (`project_id = "skills-network"`). Für den lokalen Betrieb braucht es ein eigenes IBM-watsonx-Projekt mit API-Key.
 
 **Tech:** Python · LangChain · IBM watsonx (Granite 3.3 8B, Slate Embeddings) · Chroma · Gradio
 **Code:** [`qa_bot.py`](qa_bot.py)
