@@ -1,0 +1,12 @@
+# Große Datensätze, die nicht ins Repo gehören (Download-Hinweise in der jeweiligen README)
+data-science/imdb-sentiment-analyse/data/
+
+# Python / Jupyter
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+# macOS
+.DS_Store
